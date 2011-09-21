@@ -1,0 +1,19 @@
+<?php
+// $Id$
+
+function invoice_preprocess_last_invoice_page(&$vars) {
+}
+
+function invoice_theme() {
+  return array(
+    'views_view__most_recent_invoice__last_invoice_page' => array (
+      'arguments' => array('view' => NULL),
+      'template' => 'views-view--most-recent-invoice--last-invoice-page',
+      'preprocess functions' => array(
+        'template_preprocess',
+        'template_preprocess_views_view',
+        'invoice_preprocess_last_invoice_page',
+      ),
+    ),
+  );
+}

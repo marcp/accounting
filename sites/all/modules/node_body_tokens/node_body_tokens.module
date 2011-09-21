@@ -1,0 +1,83 @@
+<?php // $Id$
+
+/**
+ * @file
+ * Node body tokens module : provides tokens for node body and teaser.
+ * Four versions : HTML checked, raw, HTML stripped, and HTML escaped.
+ */
+
+/**
+ * Implementation of hook_token_list().
+ */
+function node_body_tokens_token_list($type = 'all') {
+  if ($type == 'node' || $type == 'all') {
+    $tokens = array();
+
+    $tokens['node']['body']            = t('Node body');
+    $tokens['node']['body-raw']        = t('Node body. WARNING - raw user input');
+    $tokens['node']['body-stripped']   = t('Node body. HTML tags stripped');
+    $tokens['node']['body-plain']      = t('Node body. HTML tags escaped');
+
+    $tokens['node']['teaser']          = t('Node teaser');
+    $tokens['node']['teaser-raw']      = t('Node teaser. WARNING - raw user input');
+    $tokens['node']['teaser-stripped'] = t('Node teaser. HTML tags stripped');
+    $tokens['node']['teaser-plain']    = t('Node teaser. HTML tags escaped');
+
+    $tokens['node']['fullnode']          = t('Full rendered node');
+    $tokens['node']['fullnode-raw']      = t('Full rendered node. WARNING - raw user input');
+    $tokens['node']['fullnode-stripped'] = t('Full rendered node. HTML tags stripped');
+    $tokens['node']['fullnode-plain']    = t('Full rendered node. HTML tags escaped');
+
+    return $tokens;
+  }
+}
+
+/**
+ * Implementation of hook_token_values().
+ */
+function node_body_tokens_token_values($type, $object = NULL, $options = array()) {
+  $values = array();
+
+  switch ($type) {
+    case 'node':
+
+      // Cast to an object just in case fussy Drupal gave us an array
+      $node = (object)$object;
+
+      $values['body']             = check_markup($node->body);
+      $values['body-raw']         = $node->body;
+      $values['body-stripped']    = strip_tags($node->body);
+      $values['body-plain']       = check_plain($node->body);
+
+      $values['teaser']           = check_markup($node->teaser);
+      $values['teaser-raw']       = $node->teaser;
+      $values['teaser-stripped']  = strip_tags($node->teaser);
+      $values['teaser-plain']     = check_plain($node->teaser);
+
+      $fullnode = node_body_tokens_rendered_node($node);
+      $values['fullnode']           = check_markup($fullnode);
+      $values['fullnode-raw']       = $fullnode;
+      $values['fullnode-stripped']  = strip_tags($fullnode);
+      $values['fullnode-plain']     = check_plain($fullnode);
+
+      break;
+  }
+
+  return $values;
+}
+
+function node_body_tokens_rendered_node($object) {
+  // Prevent against invalid 'nodes' built by broken 3rd party code.
+  if (isset($object->type)) {
+    // Let PHP free the $node object when we are done. Working directly on the
+    // incoming $object causes memory leak issues on long-running scripts such
+    // as migrations. See http://drupal.org/node/736440.
+    $node = drupal_clone($object);
+    $node->build_mode = 'token';
+    $node->content = array();
+    node_build_content($node);
+    $output = drupal_render($node->content);
+    return $output;
+  }
+}
+

@@ -1,0 +1,7 @@
+; $Id$
+name = "Payment"
+description = "Provides payment specific functionality"
+core=6.x
+package = "Accounting System"
+version = "6.x-0.1"
+core = "6.x"

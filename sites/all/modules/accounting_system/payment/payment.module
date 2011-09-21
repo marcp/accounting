@@ -1,0 +1,19 @@
+<?php
+// $Id$
+
+define('PAYMENT_TYPE', 'payment');
+
+/**
+ * Implementation of hook_link().
+ */
+function payment_link($type, $node = NULL, $teaser = FALSE) {
+  if (($type == 'node') && $node && ($node->type == PAYMENT_TYPE)) {
+    $links['payment_add_another'] = array(
+      'href' => 'node/add/payment',
+      'title' => t('Pay these folks again'),
+      'query' => array('edit[field_payment_recipient][0][value]' => $node->field_payment_recipient[0]['value']),
+    );
+
+    return $links;
+  }
+}
